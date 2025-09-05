@@ -1,0 +1,43 @@
+# Node dependencies
+node_modules
+npm-debug.log
+yarn.lock
+package-lock.json
+pnpm-lock.yaml
+
+# Build output
+dist
+build
+
+# Local environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+
+# Editor / OS files
+.DS_Store
+Thumbs.db
+.idea
+.vscode
+*.swp
+
+# Docker-specific
+docker-compose.override.yml
+*.local.yml
+*.dockerfile
+
+# Cache
+.cache
+.eslintcache
+vite.config.ts.timestamp*
+
+# Cursor editor
+.cursor
+cursor-config.json
+
+# MCP server config
+.mcp
+.mcp-config.json
