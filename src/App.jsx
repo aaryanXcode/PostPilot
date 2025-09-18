@@ -1,36 +1,52 @@
-import ChatInterface from '@/components/ui/shadcn-io/ai/ChatInterface'
-import Example from './components/Example'
-import { Toaster } from 'sonner';
-import { ThemeToggle } from './components/ThemeToggle';
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
-import { AppSidebar } from "@/components/AppSidebar"
+import { Routes, Route, Navigate } from "react-router-dom";
+import Layout from "@/components/Layout";
+import LogIn from "@/components/login-form";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import { Toaster } from "sonner";
+import { AuthProvider } from "@/components/AuthContext";
+import Example from "./components/Example";
+import { ChatMessageContextProvider } from "@/components/ChatMessageContextProvider";
+import { NotificationProvider } from "./components/NotificationProvider";
+import Dashboard from "./components/Dashboard";
+import Scheduled from "./components/Scheduled";
+import Analytics from "./components/Analytics";
 
 function App() {
   return (
-    <div className="h-screen w-full flex bg-background">
-      {/* Sidebar Section */}
-      <SidebarProvider>
-        <AppSidebar />
+    <div className="h-screen w-screen bg-background overflow-hidden">
+      <AuthProvider>
+        <ChatMessageContextProvider>
+          <NotificationProvider>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<LogIn />} />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-        {/* Main Content */}
-        <div className="flex-1 relative">
-          {/* Top bar with sidebar toggle & theme toggle */}
-          <div className="flex items-center justify-between p-4">
-            <SidebarTrigger />
-            <ThemeToggle />
-          </div>
+              {/* Protected layout routes */}
+              <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+                {/* Default page inside layout */}
+                <Route index element={<Dashboard />} />  
 
-          {/* Main content centered */}
-          <div className="h-[calc(100%-64px)] max-w-4xl mx-auto flex flex-col justify-center px-4">
-            <Toaster />
-            <Example />
-          </div>
-        </div>
-      </SidebarProvider>
+                {/* Main pages */}
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="scheduled" element={<Scheduled />} />
+                <Route path="analytics" element={<Analytics />} />
+
+                {/* Chat pages */}
+                <Route path="chat" element={<Example />} />
+                <Route path="chat/:sessionIdSidebar" element={<Example />} />
+              </Route>
+
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+          </NotificationProvider>
+        </ChatMessageContextProvider>
+
+        <Toaster />
+      </AuthProvider>
     </div>
   );
 }
 
-
 export default App;
-

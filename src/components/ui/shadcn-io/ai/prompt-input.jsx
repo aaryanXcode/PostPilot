@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils'
 import { Loader2Icon, SendIcon, SquareIcon, XIcon } from 'lucide-react';
 import { Children } from 'react';
+import React, { useRef, useEffect } from 'react';
 
 export const PromptInput = ({
   className,
@@ -24,7 +25,24 @@ export const PromptInput = ({
     {...props} />
 );
 
+
+
+const useAutosizeTextarea = (ref, value, minHeight, maxHeight) => {
+  useEffect(() => {
+    const el = ref.current;
+    if (el) {
+      el.style.height = 'auto';
+      let newHeight = el.scrollHeight;
+      if (minHeight) newHeight = Math.max(minHeight, newHeight);
+      if (maxHeight) newHeight = Math.min(maxHeight, newHeight);
+      el.style.height = newHeight + 'px';
+    }
+  }, [ref, value, minHeight, maxHeight]);
+};
+
+
 export const PromptInputTextarea = ({
+  value,
   onChange,
   className,
   placeholder = 'What would you like to know?',
@@ -47,9 +65,12 @@ export const PromptInputTextarea = ({
       }
     }
   };
-
+  const textareaRef = useRef(null);
+  useAutosizeTextarea(textareaRef, value, minHeight, maxHeight);
   return (
     <Textarea
+      ref={textareaRef}
+      value={value}
       className={cn(
         'w-full resize-none rounded-none border-none p-3 shadow-none outline-none ring-0',
         'field-sizing-content max-h-[6lh] bg-transparent dark:bg-transparent',
