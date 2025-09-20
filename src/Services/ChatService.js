@@ -2,7 +2,9 @@
 export const ChatService = async (payload, token) => {
 
   try {
-    const url = "http://localhost:8080/chat/assistant";
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const chatUrl = import.meta.env.VITE_CHAT_ASSISTANT_URL;
+    const url = `${baseUrl}${chatUrl}`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -27,7 +29,9 @@ export const ChatService = async (payload, token) => {
 };
 
 export const ChatHistory = async (token, userId) => {
-    let url = "http://localhost:8080/user/chat_history";
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const historyUrl = import.meta.env.VITE_CHAT_HISTORY_URL;
+    let url = `${baseUrl}${historyUrl}`;
     if (userId) {
       url += `?userId=${userId}`;
     }
@@ -48,15 +52,17 @@ export const ChatHistory = async (token, userId) => {
       return data;
     }
     catch(error){
-      console.error("Error getting chat history of user:", err);
-      return { error: err.message };
+      console.error("Error getting chat history of user:", error);
+      return { error: error.message };
     }
     
 }
 
 
 export const ChatMessageHistory = async (sessionId, token, page = 0, size = 20) => {
-  const url = `http://localhost:8080/chat/${sessionId}/messages`;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const messagesUrl = import.meta.env.VITE_CHAT_MESSAGES_URL.replace('{sessionId}', sessionId);
+  const url = `${baseUrl}${messagesUrl}`;
 
   const pageDTO = {
     page,
@@ -86,7 +92,9 @@ export const ChatMessageHistory = async (sessionId, token, page = 0, size = 20) 
 };
 
   export const CreateNewSession = async (token) => {
-    const url = "http://localhost:8080/chat/create/session";
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const createSessionUrl = import.meta.env.VITE_CHAT_CREATE_SESSION_URL;
+    const url = `${baseUrl}${createSessionUrl}`;
 
     try {
       const response = await fetch(url, {
@@ -112,9 +120,11 @@ export const ChatMessageHistory = async (sessionId, token, page = 0, size = 20) 
 
   export async function DeleteChatSession(sessionId, token) {
   try {
-    const response = await fetch(
-      `http://localhost:8080/chat/delete/session/${sessionId}`,
-      {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const deleteSessionUrl = import.meta.env.VITE_CHAT_DELETE_SESSION_URL.replace('{sessionId}', sessionId);
+    const url = `${baseUrl}${deleteSessionUrl}`;
+    
+    const response = await fetch(url, {
         method: "DELETE",
         headers: {
           "Authorization": `Bearer ${token}`,
@@ -135,9 +145,11 @@ export const ChatMessageHistory = async (sessionId, token, page = 0, size = 20) 
 
 export async function UpdateChatTitle(sessionId, newTitle, token) {
   try {
-    const response = await fetch(
-      `http://localhost:8080/chat/update/title/${sessionId}?title=${encodeURIComponent(newTitle)}`,
-      {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const updateTitleUrl = import.meta.env.VITE_CHAT_UPDATE_TITLE_URL.replace('{sessionId}', sessionId);
+    const url = `${baseUrl}${updateTitleUrl}?title=${encodeURIComponent(newTitle)}`;
+    
+    const response = await fetch(url, {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${token}`,

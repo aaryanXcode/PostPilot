@@ -1,6 +1,9 @@
-export const ModelService = async () =>{
+export const ModelService = async (token) =>{
     try{
-        const url  = "http://localhost:8080/chat/models"
+        const baseUrl = import.meta.env.VITE_API_BASE_URL;
+        const modelsUrl = import.meta.env.VITE_CHAT_MODELS_URL;
+        const url = `${baseUrl}${modelsUrl}`;
+        
         const response = await fetch(url, {
             method : "GET",
             headers: {
@@ -18,7 +21,7 @@ export const ModelService = async () =>{
         return data;
     }
     catch(error){
-        console.error("Error getting response from chat service:", err);
-        return { error: err.message };
+        console.error("Error getting response from chat service:", error);
+        return { error: error.message };
     }
 }

@@ -1,10 +1,10 @@
-  const API_BASE_URL = "http://localhost:8080/generated-content";
-
   export const getScheduledContent = async (token, page = 0, size = 10) => {
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/scheduled?page=${page}&size=${size}`,
-        {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL;
+      const scheduledContentUrl = import.meta.env.VITE_SCHEDULED_CONTENT_URL;
+      const url = `${baseUrl}${scheduledContentUrl}?page=${page}&size=${size}`;
+      
+      const response = await fetch(url, {
           method: "GET",
           headers: {
             "Content-Type": "application/json",

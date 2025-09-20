@@ -43,17 +43,26 @@ function Layout() {
         {/* Sidebar */}
         <AppSidebar />
         {/* Main Content */}
-        <div className="flex-1 flex flex-col">
+        <div className="flex-1 flex flex-col min-w-0">
           {/* Top bar */}
-          <div className="flex items-center justify-between p-4 border-b shrink-0">
-            <SidebarTrigger />
-            <Navbar/>
-            <ThemeToggle />
+          <div className="grid grid-cols-3 items-center p-2 sm:p-4 border-b shrink-0">
+            <div className="justify-self-start">
+              <SidebarTrigger />
+            </div>
+            <div className="justify-self-center">
+              <Navbar/>
+            </div>
+            <div className="justify-self-end">
+              <ThemeToggle />
+            </div>
           </div>
-          {/* Scrollable content area */}
-          <div className="flex-1 max-w-4xl mx-auto w-full px-4 py-6 overflow-y-auto">
-            {/* This Outlet will render the nested route components (Example) */}
-            <Outlet />
+          
+          {/* Content area: do not scroll here; let inner pages manage scroll */}
+          <div className="flex-1 w-full px-2 sm:px-4 py-4 sm:py-6 overflow-hidden min-h-0">
+            <div className="max-w-4xl mx-auto w-full h-full min-h-0 flex flex-col">
+              {/* This Outlet will render the nested route components (Example) */}
+              <Outlet />
+            </div>
           </div>
         </div>
       </SidebarProvider>

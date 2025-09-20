@@ -23,20 +23,23 @@ function LoginForm({ className, ...props }) {
   const { login } = useAuth(); 
   const navigate = useNavigate();
 
-  const handleLogin = async (e) =>{
+  const handleLogin = async (e) => {
     e.preventDefault();
-    const result  = await AuthService({username, password});
-    const profile = await GetProfile(result.token);
-    if(result.token){
-      localStorage.setItem("jwtToken", result.token);
-      login(result.token); 
-      console.log("login successful");
-      navigate("/chat");
+    try {
+      const result = await AuthService({ username, password });
+      
+      if (result.token) {
+        // Don't set localStorage here - let AuthContext handle it
+        login(result.token);
+        console.log("login successful");
+        navigate("/dashboard");
+      } else {
+        alert("Invalid credentials");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Login failed. Please try again.");
     }
-    else{
-      alert("invalid credentials");
-    }
-
   }
 
 

@@ -1,7 +1,9 @@
 const AuthService = async ({ username, password }) => {
     console.log({username,password});
   try {
-    const response = await fetch("http://localhost:8080/auth/login", {
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const loginUrl = import.meta.env.VITE_AUTH_LOGIN_URL;
+    const response = await fetch(`${baseUrl}${loginUrl}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -21,7 +23,9 @@ const AuthService = async ({ username, password }) => {
 };
 
 const GetProfile = async (token) =>{
-  const url = "http://localhost:8080/user/profile";
+  const baseUrl = import.meta.env.VITE_API_BASE_URL;
+  const profileUrl = import.meta.env.VITE_USER_PROFILE_URL;
+  const url = `${baseUrl}${profileUrl}`;
   const response = await fetch(url, {
     method : "GET",
     headers : {

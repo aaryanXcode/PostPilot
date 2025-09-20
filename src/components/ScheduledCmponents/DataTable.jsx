@@ -46,7 +46,7 @@ export const DataTable = ({ items, type }) => {
                   <Button >
                     Post Now
                   </Button>
-                  <Button >
+                  <Button>
                     Cancel
                   </Button>
                 </>

@@ -118,3 +118,15 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  /* Custom xs breakpoint for very small screens */
+  @media (min-width: 475px) {
+    .xs\:inline {
+      display: inline;
+    }
+    .xs\:hidden {
+      display: none;
+    }
+  }
+}

@@ -1,5 +1,7 @@
 export const LinkedInAuthService = async (token) => {
-    const url = "http://localhost:8080/linkedin/auth-url";
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const linkedinAuthUrl = import.meta.env.VITE_LINKEDIN_AUTH_URL;
+    const url = `${baseUrl}${linkedinAuthUrl}`;
 
     try {
         const response = await fetch(url, {
@@ -30,7 +32,9 @@ export const LinkedInAuthService = async (token) => {
 
 
 export const LinkedInAuthStatusService = async (token) => {
-    const url = "http://localhost:8080/linkedin/auth-status";
+    const baseUrl = import.meta.env.VITE_API_BASE_URL;
+    const linkedinAuthStatusUrl = import.meta.env.VITE_LINKEDIN_AUTH_STATUS_URL;
+    const url = `${baseUrl}${linkedinAuthStatusUrl}`;
 
     try {
         const response = await fetch(url, {

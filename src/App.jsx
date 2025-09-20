@@ -3,13 +3,39 @@ import Layout from "@/components/Layout";
 import LogIn from "@/components/login-form";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { Toaster } from "sonner";
-import { AuthProvider } from "@/components/AuthContext";
+import { AuthProvider, useAuth } from "@/components/AuthContext";
 import Example from "./components/Example";
 import { ChatMessageContextProvider } from "@/components/ChatMessageContextProvider";
 import { NotificationProvider } from "./components/NotificationProvider";
 import Dashboard from "./components/Dashboard";
 import Scheduled from "./components/Scheduled";
 import Analytics from "./components/Analytics";
+
+// Component to handle authenticated routes
+function AuthenticatedRoutes() {
+  const { token } = useAuth();
+  
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return (
+    <Routes>
+      {/* Protected layout routes */}
+      <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+        {/* Main pages */}
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/scheduled" element={<Scheduled />} />
+        <Route path="/analytics" element={<Analytics />} />
+        <Route path="/chat" element={<Example />} />
+        <Route path="/chat/:sessionIdSidebar" element={<Example />} />
+        
+        {/* Fallback route for unknown paths - redirect to dashboard */}
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Route>
+    </Routes>
+  );
+}
 
 function App() {
   return (
@@ -20,29 +46,15 @@ function App() {
             <Routes>
               {/* Public routes */}
               <Route path="/login" element={<LogIn />} />
+              
+              {/* Redirect root to dashboard */}
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
-              {/* Protected layout routes */}
-              <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-                {/* Default page inside layout */}
-                <Route index element={<Dashboard />} />  
-
-                {/* Main pages */}
-                <Route path="dashboard" element={<Dashboard />} />
-                <Route path="scheduled" element={<Scheduled />} />
-                <Route path="analytics" element={<Analytics />} />
-
-                {/* Chat pages */}
-                <Route path="chat" element={<Example />} />
-                <Route path="chat/:sessionIdSidebar" element={<Example />} />
-              </Route>
-
-              {/* Fallback */}
-              <Route path="*" element={<Navigate to="/login" replace />} />
+              
+              {/* All other routes are protected */}
+              <Route path="/*" element={<AuthenticatedRoutes />} />
             </Routes>
           </NotificationProvider>
         </ChatMessageContextProvider>
-
         <Toaster />
       </AuthProvider>
     </div>

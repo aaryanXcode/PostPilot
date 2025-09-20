@@ -40,7 +40,7 @@ import { useAuth } from "@/components/AuthContext";
 import { ChatMessageHistory } from "../Services/ChatService";
 import { useParams } from 'react-router-dom';
 import { useMessages } from "@/components/ChatMessageContextProvider";
-import { PostContent, PostSchedule } from '../Services/ContentPostService';
+import { PostContent, PostSchedule, UpdatePostContent } from '../Services/ContentPostService';
 import { LinkedInAuthService, LinkedInAuthStatusService } from '../Services/LinkedInAuthService';
 
 
@@ -197,14 +197,12 @@ const Example = () => {
     }
   };
 
-  //post content
+  //Edit post content
   const handlePostNow = async (generatedContent) => {
     try {
       // API call here
       const response = await PostContent(generatedContent, token);
-      console.log("Posting now:", response);
-      // await PostNowService(generatedContent, token);
-      toast.success("Content posted successfully!");
+      toast.success("Content updated successfully!");
     } catch (err) {
       toast.error("Failed to post");
     }
@@ -252,6 +250,25 @@ const handleConnectPlatform = async (platform, token) => {
   }
 };
 
+const handlePostEdit = async (generateContentDTO, token) => {
+  if (!token) {
+      console.error("No JWT token provided!");
+      toast.error("Cannot update: user not authenticated");
+      return;
+    }
+  try {
+    const result = UpdatePostContent(generateContentDTO, token);
+    
+    if (result.error) {
+      toast.error(result.error);
+    } else {
+      toast.success("Content updated successfully");
+    }
+  } catch (err) {
+    console.error("Error in handleConnectPlatform:", err);
+    toast.error("Failed to connect LinkedIn");
+  }
+};
 
   const handleRetry = () => {
     console.log('Retry last message...');
@@ -297,22 +314,34 @@ const handleConnectPlatform = async (platform, token) => {
   return (
     <div className="flex flex-col w-full h-full p-4 rounded-lg">
       {messages.length === 0 && (
-        <div className="flex flex-col items-center justify-center flex-1 p-8">
-          <h2 className="text-2xl font-semibold mb-4">How can I help you today?</h2>
-          {role==="ADMIN" && 
-            <Suggestions>
-              {starterPrompts.map((prompt) => (
-                <Suggestion
-                  key={prompt}
-                  suggestion={prompt}
-                  onClick={() => handleSubmit({ preventDefault: () => {}, target: { value: prompt } })}
-                />
-              ))}
+        <div className="flex flex-col items-center justify-center flex-1 p-4 sm:p-8">
+          {/* Heading */}
+          <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center">
+            How can I help you today?
+          </h2>
+
+          {/* Suggestions (only for ADMIN) */}
+          {role === "ADMIN" && (
+            <Suggestions className="w-full max-w-4xl">
+              <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
+                {starterPrompts.map((prompt) => (
+                  <Suggestion
+                    key={prompt}
+                    suggestion={prompt}
+                    onClick={() =>
+                      handleSubmit({
+                        preventDefault: () => {},
+                        target: { value: prompt },
+                      })
+                    }
+                    className="flex-1 min-w-[280px] max-w-[320px] sm:min-w-[300px] sm:max-w-[350px]"
+                  />
+                ))}
+              </div>
             </Suggestions>
-          }
+          )}
         </div>
       )}
-
       <Conversation className="flex-1 overflow-y-auto mb-4">
         <ConversationContent>
           {messages.map((message) => (
@@ -333,6 +362,13 @@ const handleConnectPlatform = async (platform, token) => {
                     handleSchedule({ ...message.generatedContent, dateTime })
                   }}
                   onConnect={()=>handleConnectPlatform(message.generatedContent.platform)}
+                  onEdit={(updateContent) =>
+                    handlePostEdit(
+                      { ...message.generatedContent, content: updateContent }, 
+                      token // pass the token here
+                    )
+                  }
+
                 />
               </MessageContent>
               {message.from === 'assistant' && (
@@ -366,11 +402,11 @@ const handleConnectPlatform = async (platform, token) => {
           placeholder="Type your message..."
         />
         <PromptInputToolbar>
-          <PromptInputTools>
-            <PromptInputButton>
+          <PromptInputTools className="flex flex-nowrap overflow-x-auto gap-2 pb-2 scrollbar-hide">
+            <PromptInputButton className="flex-shrink-0">
               <PaperclipIcon size={16} />
             </PromptInputButton>
-            <PromptInputModelSelect onValueChange={setModel} value={model}>
+            <PromptInputModelSelect onValueChange={setModel} value={model} className="flex-shrink-0 min-w-[120px]">
               <PromptInputModelSelectTrigger>
                 <PromptInputModelSelectValue />
               </PromptInputModelSelectTrigger>
@@ -382,11 +418,20 @@ const handleConnectPlatform = async (platform, token) => {
                 ))}
               </PromptInputModelSelectContent>
             </PromptInputModelSelect>
-            <PromptInputPlatformSelect value={platform} onValueChange={setPlatform} className="mr-2" />
-            <PromptInputContentTypeSelect value={contentType} onValueChange={setContentType} />
+            <PromptInputPlatformSelect 
+              value={platform} 
+              onValueChange={setPlatform} 
+              className="flex-shrink-0 min-w-[100px]" 
+            />
+            <PromptInputContentTypeSelect 
+              value={contentType} 
+              onValueChange={setContentType}
+              className="flex-shrink-0 min-w-[100px]"
+            />
           </PromptInputTools>
-          <PromptInputSubmit disabled={!text} status={status} />
+          <PromptInputSubmit disabled={!text} status={status} className="flex-shrink-0" />
         </PromptInputToolbar>
+
       </PromptInput>
     </div>
   );
