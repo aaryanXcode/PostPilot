@@ -54,6 +54,7 @@ const Scheduled = () => {
   );
 
   return (
+    
     <div className="space-y-4 sm:space-y-6 p-2 sm:p-4">
       <h1 className="text-xl sm:text-2xl font-bold">Scheduled Post Analytics</h1>
 
