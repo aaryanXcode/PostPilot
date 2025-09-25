@@ -226,6 +226,8 @@ const handleSchedule = async (scheduledContent) => {
 
 
 const handleConnectPlatform = async (platform, token) => {
+  
+  console.log(platform);
   try {
     if (platform === "LinkedIn") {
       if (isConnected) {

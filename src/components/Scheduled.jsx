@@ -86,7 +86,6 @@ const Scheduled = () => {
             </svg>
           </div>
         </div>
-
         <div className="absolute bottom-20 left-20 animate-bounce delay-500">
           <div className="w-14 h-14 bg-gradient-to-r from-pink-500 to-red-500 rounded-full flex items-center justify-center shadow-lg">
             <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">

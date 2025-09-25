@@ -9,10 +9,54 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import CountdownTimer from "../CountdownTimer";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import { useState } from "react";
+import { Textarea } from "@/components/ui/textarea"; 
+import { fetchPostById, updatePostById } from "../../Services/ContentService";
+import { useAuth } from "@/components/AuthContext";
+import { toast } from "sonner";
 
 export const DataTable = ({ items, type }) => {
+  const [openDialog, setOpenDialog] = useState(false);
+  const [activePost, setActivePost] = useState(null);
+  const [editorValue, setEditorValue] = useState("");
+  const { token} = useAuth();
+  // open dialog and fetch content by id
+  const handleEdit = async (postId) => {
+    try {
+      const data = await fetchPostById(postId, token); // fetch content by row id
+      setActivePost(data);
+      setEditorValue(data.content || "");
+      setOpenDialog(true);
+    } catch (err) {
+      console.error("Failed to fetch post content:", err);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!activePost) return;
+
+    try {
+      await updatePostById(activePost.id, editorValue, token);
+      // Optionally show a toast here
+      toast.success("Content updated successfully!");
+      setOpenDialog(false);
+      setActivePost(null);
+      setEditorValue("");
+    } catch (err) {
+      console.error("Failed to update post:", err);
+    }
+  };
   return (
-    <Table>
+    <>
+    <Table className= "table-auto">
       <TableCaption>A list of your posts.</TableCaption>
       <TableHeader>
         <TableRow>
@@ -108,9 +152,10 @@ export const DataTable = ({ items, type }) => {
                     <Button size="sm" variant="destructive">
                       Cancel
                     </Button>
+                     <Button size="sm" variant="destructive" onClick={() => handleEdit(post.id)}>Edit</Button>
                   </>
                 )}
-
+              
                 {type === "published" && (
                   <span className="text-green-600 text-sm font-medium">
                     Published
@@ -122,5 +167,106 @@ export const DataTable = ({ items, type }) => {
         ))}
       </TableBody>
     </Table>
+
+    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader className="flex-shrink-0">
+            <DialogTitle className="text-xl font-bold text-gray-900 dark:text-white flex items-center">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mr-3">
+                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </div>
+              Edit Post Content
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-300">
+              Make changes to your post content below. The dialog is scrollable for longer content.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto min-h-0">
+            <div className="space-y-4">
+              {/* Post Info Card */}
+              {activePost && (
+                <div className="backdrop-blur-sm bg-gray-50/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <h4 className="font-semibold text-gray-900 dark:text-white">Post Information</h4>
+                    <span className="text-sm text-gray-500 dark:text-gray-400">ID: {activePost.id}</span>
+                  </div>
+                  <div className="text-sm text-gray-600 dark:text-gray-300">
+                    <p>Character count: <span className="font-medium">{editorValue.length}</span></p>
+                    <p>Word count: <span className="font-medium">{editorValue.split(/\s+/).filter(word => word.length > 0).length}</span></p>
+                  </div>
+                </div>
+              )}
+
+              {/* Content Editor */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Post Content
+                </label>
+                <Textarea
+                  value={editorValue}
+                  onChange={(e) => setEditorValue(e.target.value)}
+                  placeholder="Enter your post content here..."
+                  className="min-h-[200px] max-h-[400px] resize-none text-sm leading-relaxed border-gray-300 dark:border-gray-600 focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800"
+                />
+              </div>
+
+              {/* Preview Section */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Preview
+                </label>
+                <div className="backdrop-blur-sm bg-white/80 dark:bg-gray-800/80 border border-gray-200 dark:border-gray-700 rounded-lg p-4 min-h-[100px] max-h-[200px] overflow-y-auto">
+                  {editorValue ? (
+                    <div className="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
+                      {editorValue}
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-500 dark:text-gray-400 italic">
+                      Start typing to see a preview of your content...
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Fixed Footer */}
+          <div className="flex-shrink-0 border-t border-gray-200 dark:border-gray-700 pt-4 mt-4">
+            <div className="flex justify-between items-center">
+              <div className="text-xs text-gray-500 dark:text-gray-400">
+                {editorValue.length > 0 && (
+                  <span className={editorValue.length > 280 ? "text-orange-500" : "text-green-500"}>
+                    {editorValue.length > 280 ? "Content is long" : "Good length"}
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-3">
+                <Button 
+                  variant="outline" 
+                  onClick={() => setOpenDialog(false)}
+                  className="px-6"
+                >
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={handleSave}
+                  disabled={!editorValue.trim()}
+                  className="px-6 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white border-0"
+                >
+                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Save Changes
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      </>
+    
   );
 };
