@@ -48,6 +48,7 @@ export const ChatHistory = async (token, userId) => {
     if (userId) {
       url += `?userId=${userId}`;
     }
+    console.log("Chat History URL:", url);
     try{
         const response = await fetch(url, {
         method : "GET",

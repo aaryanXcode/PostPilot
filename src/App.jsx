@@ -10,6 +10,7 @@ import { NotificationProvider } from "./components/NotificationProvider";
 import Dashboard from "./components/Dashboard";
 import Scheduled from "./components/Scheduled";
 import Analytics from "./components/Analytics";
+import Gallery from "./components/Gallery";
 
 // Component to handle authenticated routes
 function AuthenticatedRoutes() {
@@ -27,6 +28,7 @@ function AuthenticatedRoutes() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/scheduled" element={<Scheduled />} />
         <Route path="/analytics" element={<Analytics />} />
+        <Route path="/gallery" element={<Gallery />} />
         <Route path="/chat" element={<Example />} />
         <Route path="/chat/:sessionIdSidebar" element={<Example />} />
         

@@ -1,4 +1,4 @@
-import DashboardGraphs from './DashboardGraphs';
+import DashboardGraphsSimple from './DashboardGraphsSimple';
 
 const Dashboard = () => {
   return (
@@ -191,7 +191,7 @@ const Dashboard = () => {
         </div>
         {/* Dashboard Graphs */}
         <div className="mb-8">
-          <DashboardGraphs />
+          <DashboardGraphsSimple />
         </div>
       </div>
     </div>
