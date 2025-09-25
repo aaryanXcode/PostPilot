@@ -14,6 +14,7 @@ const GeneratedContentCard = ({
   onConnect, 
   onEdit
 }) => {
+  console.log(JSON.stringify(content));
   if (!content) return null;
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState(content); 
@@ -83,23 +84,68 @@ const GeneratedContentCard = ({
           )
         )}
 
-        {/* Image gallery (skip editing for now) */}
-        {draft.imageUrls?.length > 0 && !isEditing && (
-          <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
-            {draft.imageUrls.map((img) => (
-              <div
-                key={img.id}
-                className="flex-shrink-0 rounded-lg overflow-hidden border w-24 h-24 sm:w-36 sm:h-36"
-              >
-                <img
-                  src={img.imageUrl}
-                  alt={img.altText || "generated image"}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
-          </div>
+        {/* Image gallery */}
+{draft.imageUrls?.length > 0 && (
+  <div className="flex gap-2 sm:gap-3 overflow-x-auto pb-2">
+    {draft.imageUrls.map((img, idx) => (
+      <div
+        key={img.id || idx}
+        className="relative flex-shrink-0 rounded-lg overflow-hidden border w-24 h-24 sm:w-36 sm:h-36"
+      >
+        <img
+          src={img.imageUrl}
+          alt={img.altText || "generated image"}
+          className="w-full h-full object-cover"
+        />
+        {isEditing && (
+          <button
+            type="button"
+            onClick={() => {
+              const updatedImages = draft.imageUrls.filter((_, i) => i !== idx);
+              setDraft({ ...draft, imageUrls: updatedImages });
+            }}
+            className="absolute top-1 right-1 bg-red-500 text-white rounded-full px-1 py-0.5 text-xs"
+          >
+            ✕
+          </button>
         )}
+      </div>
+    ))}
+  </div>
+)}
+
+{/* Add new image in edit mode */}
+{isEditing && (
+  <div className="mt-2">
+    <input
+      type="file"
+      accept="image/*"
+      onChange={(e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const newImage = {
+            id: Date.now(), // temporary ID
+            imageUrl: URL.createObjectURL(file),
+            altText: file.name,
+            fileName: file.name,
+          };
+          setDraft({
+            ...draft,
+            imageUrls: [...(draft.imageUrls || []), newImage],
+          });
+        }
+      }}
+      className="hidden"
+      id="image-upload"
+    />
+    <label
+      htmlFor="image-upload"
+      className="cursor-pointer px-3 py-1 border rounded-md text-sm text-blue-600 hover:bg-blue-50"
+    >
+      + Add Image
+    </label>
+  </div>
+)}
 
         {/* Actions */}
         <div className="flex flex-col sm:flex-row justify-end gap-2 pt-2 border-t">
