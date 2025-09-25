@@ -1,5 +1,5 @@
 export const PostContent = async (generatedContent, token) => {
-    console.log(JSON.stringify(generatedContent), token);
+    // console.log(JSON.stringify(generatedContent), token);
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
     const postContentUrl = import.meta.env.VITE_CONTENT_POST_URL;
     const url = `${baseUrl}${postContentUrl}`;
@@ -57,12 +57,12 @@ export const PostSchedule = async (scheduleObject, token) => {
 
 
 export const UpdatePostContent = async (generatedContent, token) => {
-    console.log(JSON.stringify(generatedContent), token);
+    // console.log(JSON.stringify(generatedContent), token);
     const baseUrl = import.meta.env.VITE_API_BASE_URL;
     const contentUpdate = import.meta.env.VITE_CONTENT_UPDATE_URL
     const url = `${baseUrl}${contentUpdate}`;
-    console.log(url);
-    console.log("Sending token:", token);
+    // console.log(url);
+    // console.log("Sending token:", token);
 
     try {
         const response = await fetch(url, {

@@ -100,7 +100,7 @@ const Example = () => {
             name: msg.messageType === 'ASSISTANT' ? 'AI' : 'You',
             generatedContent: msg.generateContentDTO,
           }));
-          console.log(loadedMessages);
+          // console.log(loadedMessages);
           setMessages(loadedMessages.reverse());
         }
       } catch (err) {
@@ -200,13 +200,13 @@ const Example = () => {
   //Edit post content
   const handlePostNow = async (generatedContent) => {
     try {
-      console.log("=== CHAT PAGE: Post Now Handler ===");
-      console.log("Sending to server for posting:", generatedContent);
-      console.log("Generated Content ID:", generatedContent.id);
-      console.log("Generated Content:", generatedContent.content);
-      console.log("Generated Content Platform:", generatedContent.platform);
-      console.log("Generated Content Title:", generatedContent.title);
-      console.log("Full Generated Content Object:", JSON.stringify(generatedContent, null, 2));
+      // console.log("=== CHAT PAGE: Post Now Handler ===");
+      // console.log("Sending to server for posting:", generatedContent);
+      // console.log("Generated Content ID:", generatedContent.id);
+      // console.log("Generated Content:", generatedContent.content);
+      // console.log("Generated Content Platform:", generatedContent.platform);
+      // console.log("Generated Content Title:", generatedContent.title);
+      // console.log("Full Generated Content Object:", JSON.stringify(generatedContent, null, 2));
 
       // API call here
       const response = await PostContent(generatedContent, token);
@@ -217,13 +217,14 @@ const Example = () => {
   };
 //schedulecontent
 const handleSchedule = async (scheduledContent) => {
+  // console.log(scheduledContent);
   try {
     //console.log("scheduledContent id:", scheduledContent.id);
     //console.log("dateTime:", scheduledContent.dateTime);
 
     const response = await PostSchedule(scheduledContent, token);
 
-    //console.log("Schedule API response:", response);
+    // //console.log("Schedule API response:", response);
 
     toast.success(`✅ ${JSON.stringify(response)}`);
   } catch (err) {
@@ -235,7 +236,7 @@ const handleSchedule = async (scheduledContent) => {
 
 const handleConnectPlatform = async (platform, token) => {
   
-  console.log(platform);
+  // console.log(platform);
   try {
     if (platform === "LinkedIn") {
       if (isConnected) {
@@ -281,7 +282,7 @@ const handlePostEdit = async (generateContentDTO, token) => {
 };
 
   const handleRetry = () => {
-    console.log('Retry last message...');
+    // console.log('Retry last message...');
   };
 
   const handleCopy = (content) => {
@@ -290,7 +291,7 @@ const handlePostEdit = async (generateContentDTO, token) => {
   };
 
   const handleShare = () => {
-    console.log('Share action triggered');
+    // console.log('Share action triggered');
   };
 
   const actions = (message) => [

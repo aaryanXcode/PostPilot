@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNotifications } from "./NotificationProvider"
 import { useAuth } from "./AuthContext";
-import { Bell, Calendar, BarChart3, Layout, User, Settings, MessageSquare, UserPlus } from "lucide-react";
+import { Bell, Calendar, BarChart3, Layout, User, Settings, MessageSquare, UserPlus, Image } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -93,7 +93,6 @@ export const Navbar = () => {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
-
               {/* Analytics */}
               <NavigationMenuItem>
                 <NavigationMenuLink
@@ -134,6 +133,26 @@ export const Navbar = () => {
                   </Link>
                 </NavigationMenuLink>
               </NavigationMenuItem>
+            {/* Gallery */}
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                asChild
+                className={cn(
+                  "group inline-flex h-8 sm:h-9 w-max items-center justify-center rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-300 hover:scale-105 focus:outline-none disabled:pointer-events-none disabled:opacity-50",
+                  activeItem === "gallery" 
+                    ? "bg-gradient-to-r from-indigo-600 to-cyan-600 text-white shadow-lg" 
+                    : "bg-white/60 dark:bg-gray-700/60 text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-cyan-500 hover:text-white shadow-md hover:shadow-lg"
+                )}
+                onClick={() => setActiveItem("gallery")}
+              >
+                <Link to="/gallery" className="flex items-center">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-indigo-500 to-cyan-500 rounded-lg flex items-center justify-center mr-2">
+                    <Image className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+                  </div>
+                  <span className="hidden xs:inline font-semibold">Gallery</span>
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         </div>

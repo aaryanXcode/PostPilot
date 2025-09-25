@@ -136,15 +136,15 @@ export const DataTable = ({ items, type }) => {
         content: fullPostData.content || post.title || ""
       };
 
-      console.log("=== SCHEDULE PAGE: Post Now Handler ===");
-      console.log("Original post from table:", post);
-      console.log("Fetched full post data:", fullPostData);
-      console.log("Sending to server for posting:", postObject);
-      console.log("Post ID:", post.id);
-      console.log("Post Content:", postObject.content);
-      console.log("Post Platform:", postObject.platform);
-      console.log("Post Title:", postObject.title);
-      console.log("Full Post Object:", JSON.stringify(postObject, null, 2));
+      // console.log("=== SCHEDULE PAGE: Post Now Handler ===");
+      // console.log("Original post from table:", post);
+      // console.log("Fetched full post data:", fullPostData);
+      // console.log("Sending to server for posting:", postObject);
+      // console.log("Post ID:", post.id);
+      // console.log("Post Content:", postObject.content);
+      // console.log("Post Platform:", postObject.platform);
+      // console.log("Post Title:", postObject.title);
+      // console.log("Full Post Object:", JSON.stringify(postObject, null, 2));
 
       const response = await PostContent(postObject, token);
       toast.success("✅ Post published to LinkedIn successfully!");
@@ -159,8 +159,8 @@ export const DataTable = ({ items, type }) => {
 
   const handleCancelSchedule = async (postId) => {
     try {
-      console.log("=== SCHEDULE PAGE: Cancel Schedule Handler ===");
-      console.log("Cancelling schedule for post ID:", postId);
+      // console.log("=== SCHEDULE PAGE: Cancel Schedule Handler ===");
+      // console.log("Cancelling schedule for post ID:", postId);
 
       const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
       const url = `${baseUrl}/content/schedule/cancel`;
@@ -184,7 +184,7 @@ export const DataTable = ({ items, type }) => {
       }
 
       const data = await response.text();
-      console.log("Cancel schedule response:", data);
+      // console.log("Cancel schedule response:", data);
       
       toast.success("✅ Post schedule cancelled successfully! Moved to draft.");
       

@@ -6,12 +6,12 @@ export const ChatService = async (payload, token) => {
     const chatUrl = import.meta.env.VITE_CHAT_ASSISTANT_URL || '/api/chat/assistant';
     const url = `${baseUrl}${chatUrl}`;
     
-    console.log('=== CHAT SERVICE DEBUG ===');
-    console.log('Base URL:', baseUrl);
-    console.log('Chat URL:', chatUrl);
-    console.log('Full URL:', url);
-    console.log('Payload:', payload);
-    console.log('Token present:', !!token);
+    // console.log('=== CHAT SERVICE DEBUG ===');
+    // console.log('Base URL:', baseUrl);
+    // console.log('Chat URL:', chatUrl);
+    // console.log('Full URL:', url);
+    // console.log('Payload:', payload);
+    // console.log('Token present:', !!token);
     
     const response = await fetch(url, {
       method: "POST",
@@ -22,8 +22,8 @@ export const ChatService = async (payload, token) => {
       body: JSON.stringify(payload),
     });
 
-    console.log('Response status:', response.status);
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+    // console.log('Response status:', response.status);
+    // console.log('Response headers:', Object.fromEntries(response.headers.entries()));
     
     if (!response.ok) {
       const errorText = await response.text();
@@ -32,7 +32,7 @@ export const ChatService = async (payload, token) => {
     }
     
     const data = await response.json();
-    console.log('Chat service response:', data);
+    // console.log('Chat service response:', data);
     return data;
   
   } catch (err) {
@@ -42,7 +42,7 @@ export const ChatService = async (payload, token) => {
 };
 
 export const ChatHistory = async (token, userId) => {
-    console.log(token);
+    // console.log(token);
     const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
     // Force the correct endpoint
     const historyUrl = '/chat/history';
@@ -50,14 +50,6 @@ export const ChatHistory = async (token, userId) => {
     if (userId) {
       url += `?userId=${userId}`;
     }
-    
-    console.log('=== CHAT HISTORY DEBUG ===');
-    console.log('Base URL:', baseUrl);
-    console.log('History URL:', historyUrl);
-    console.log('Full URL:', url);
-    console.log('Token present:', !!token);
-    console.log('Making request to:', url);
-    
     try{
         const response = await fetch(url, {
         method : "GET",
@@ -67,8 +59,8 @@ export const ChatHistory = async (token, userId) => {
         },
       });
 
-      console.log('Chat history response status:', response.status);
-      console.log('Chat history response headers:', Object.fromEntries(response.headers.entries()));
+      // console.log('Chat history response status:', response.status);
+      // console.log('Chat history response headers:', Object.fromEntries(response.headers.entries()));
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -77,7 +69,7 @@ export const ChatHistory = async (token, userId) => {
       }
 
       const data = await response.json();
-      console.log('Chat history data:', data);
+      // console.log('Chat history data:', data);
       return data;
     }
     catch(error){

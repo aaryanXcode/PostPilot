@@ -24,7 +24,7 @@ export const NotificationProvider = ({ children }) => {
   useEffect(() => {
     if (!userId) return; // Don't connect if no user ID
     
-    console.log('🔔 Connecting to notifications for user:', userId);
+    // console.log('🔔 Connecting to notifications for user:', userId);
     const eventSource = new EventSource(
       `http://localhost:8080/api/notifications/stream?userId=${userId}`
     );
@@ -32,7 +32,7 @@ export const NotificationProvider = ({ children }) => {
     eventSource.addEventListener("notification", (e) => {
       try {
         const data = JSON.parse(e.data);
-        console.log('📩 Received notification:', data);
+        // console.log('📩 Received notification:', data);
         
         const notification = {
           id: data.id || Date.now(),
@@ -64,11 +64,11 @@ export const NotificationProvider = ({ children }) => {
     });
 
     eventSource.addEventListener("connected", (e) => {
-      console.log('🔔 SSE Connected:', e.data);
+      // console.log('🔔 SSE Connected:', e.data);
     });
 
     eventSource.onopen = () => {
-      console.log('🔔 SSE Connection opened for user:', userId);
+      // console.log('🔔 SSE Connection opened for user:', userId);
     };
 
     eventSource.onerror = (err) => {
@@ -77,7 +77,7 @@ export const NotificationProvider = ({ children }) => {
     };
 
     return () => {
-      console.log('🔔 Closing SSE connection for user:', userId);
+      // console.log('🔔 Closing SSE connection for user:', userId);
       eventSource.close();
     };
   }, [userId]);
@@ -126,7 +126,7 @@ export const NotificationProvider = ({ children }) => {
     try {
       const response = await fetch(`http://localhost:8080/api/notifications/test?userId=${userId}`);
       if (response.ok) {
-        console.log('✅ Test notification sent successfully');
+        // console.log('✅ Test notification sent successfully');
       } else {
         console.error('❌ Failed to send test notification:', response.status);
       }

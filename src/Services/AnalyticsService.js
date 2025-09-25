@@ -8,12 +8,12 @@ export const getAnalyticsData = async (token, dateRange = null) => {
     // Build query parameters for date range if provided
     let url = `${baseUrl}${analyticsUrl}`;
     
-    console.log("🚀 Analytics Service - Using URL:", url);
-    console.log("🔍 Environment variables:", {
-      VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
-      VITE_ANALYTICS_URL: import.meta.env.VITE_ANALYTICS_URL
-    });
-    console.log("📅 Timestamp:", new Date().toISOString());
+    // console.log("🚀 Analytics Service - Using URL:", url);
+    // console.log("🔍 Environment variables:", {
+    //   VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
+    //   VITE_ANALYTICS_URL: import.meta.env.VITE_ANALYTICS_URL
+    // });
+    // console.log("📅 Timestamp:", new Date().toISOString());
     if (dateRange) {
       const params = new URLSearchParams();
       if (dateRange.startDate) params.append('startDate', dateRange.startDate);
@@ -23,7 +23,7 @@ export const getAnalyticsData = async (token, dateRange = null) => {
       }
     }
     
-    console.log("Fetching analytics from URL:", url);
+    // console.log("Fetching analytics from URL:", url);
     
     const response = await fetch(url, {
       method: "GET",

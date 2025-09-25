@@ -45,7 +45,7 @@ function LoginForm({ className, ...props }) {
       
       if (result.token) {
         login(result.token);
-        console.log("login successful");
+        // console.log("login successful");
         navigate("/dashboard");
       } else {
         alert("Invalid credentials");

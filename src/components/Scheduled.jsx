@@ -20,12 +20,12 @@ const Scheduled = () => {
 
       while (hasMoreData) {
         try {
-          console.log(`=== FRONTEND: Fetching page ${currentPage} ===`);
+          // console.log(`=== FRONTEND: Fetching page ${currentPage} ===`);
           const data = await getScheduledContent(token, currentPage, pageSize);
           
-          console.log(`Page ${currentPage} data:`, data);
-          console.log(`Content length: ${data.content ? data.content.length : 0}`);
-          console.log(`Total pages: ${data.totalPages}`);
+          // console.log(`Page ${currentPage} data:`, data);
+          // console.log(`Content length: ${data.content ? data.content.length : 0}`);
+          // console.log(`Total pages: ${data.totalPages}`);
           
           if (data.content && data.content.length > 0) {
             allItems = [...allItems, ...data.content];
@@ -45,9 +45,9 @@ const Scheduled = () => {
 
       // Remove duplicates and set all items
       const uniqueItems = Array.from(new Map(allItems.map(item => [item.id, item])).values());
-      console.log(`=== FRONTEND: Total items collected: ${allItems.length} ===`);
-      console.log(`=== FRONTEND: Unique items after deduplication: ${uniqueItems.length} ===`);
-      console.log('All items:', uniqueItems);
+      // console.log(`=== FRONTEND: Total items collected: ${allItems.length} ===`);
+      // console.log(`=== FRONTEND: Unique items after deduplication: ${uniqueItems.length} ===`);
+      // console.log('All items:', uniqueItems);
       
       setItems(uniqueItems);
     };

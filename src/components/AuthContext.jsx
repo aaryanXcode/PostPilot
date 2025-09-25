@@ -14,7 +14,7 @@ const AuthProvider = ({ children }) => {
                     localStorage.removeItem("jwtToken");
                     return { token: null, role: null, user: null };
                 }
-                console.log("setting auth");
+                // console.log("setting auth");
                 return { token, role: decoded.role, user: decoded.sub };
             } catch (error) {
                 console.error("Invalid token:", error);
@@ -52,7 +52,7 @@ const AuthProvider = ({ children }) => {
 
     const login = (jwtToken) => {
         try {
-            console.log("login");
+            // console.log("login");
             localStorage.setItem("jwtToken", jwtToken);
             const decoded = jwtDecode(jwtToken);
             setAuth({ token: jwtToken, role: decoded.role, user: decoded.sub });

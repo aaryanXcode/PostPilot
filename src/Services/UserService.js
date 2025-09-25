@@ -2,9 +2,9 @@ const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 export const createUser = async (userData, token) => {
   try {
-    console.log("=== FRONTEND: Creating User ===");
-    console.log("User data:", userData);
-    console.log("API URL:", `${baseUrl}/api/users`);
+    // console.log("=== FRONTEND: Creating User ===");
+    // console.log("User data:", userData);
+    // console.log("API URL:", `${baseUrl}/api/users`);
     
     const response = await fetch(`${baseUrl}/api/users`, {
       method: 'POST',
@@ -15,8 +15,8 @@ export const createUser = async (userData, token) => {
       body: JSON.stringify(userData),
     });
 
-    console.log("Response status:", response.status);
-    console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+    // console.log("Response status:", response.status);
+    // console.log("Response headers:", Object.fromEntries(response.headers.entries()));
 
     if (!response.ok) {
       const errorText = await response.text();
@@ -25,7 +25,7 @@ export const createUser = async (userData, token) => {
     }
 
     const data = await response.json();
-    console.log("User created successfully:", data);
+    // console.log("User created successfully:", data);
     return { success: true, data };
   } catch (error) {
     console.error("Error creating user:", error);
@@ -35,8 +35,8 @@ export const createUser = async (userData, token) => {
 
 export const getAllUsers = async (token) => {
   try {
-    console.log("=== FRONTEND: Fetching All Users ===");
-    console.log("API URL:", `${baseUrl}/api/users`);
+    // console.log("=== FRONTEND: Fetching All Users ===");
+    // console.log("API URL:", `${baseUrl}/api/users`);
     
     const response = await fetch(`${baseUrl}/api/users`, {
       method: 'GET',
@@ -51,7 +51,7 @@ export const getAllUsers = async (token) => {
     }
 
     const data = await response.json();
-    console.log("Users fetched successfully:", data);
+    // console.log("Users fetched successfully:", data);
     return { success: true, data };
   } catch (error) {
     console.error("Error fetching users:", error);
@@ -61,9 +61,9 @@ export const getAllUsers = async (token) => {
 
 export const getUserById = async (id, token) => {
   try {
-    console.log("=== FRONTEND: Fetching User by ID ===");
-    console.log("User ID:", id);
-    console.log("API URL:", `${baseUrl}/api/users/${id}`);
+    // console.log("=== FRONTEND: Fetching User by ID ===");
+    // console.log("User ID:", id);
+    // console.log("API URL:", `${baseUrl}/api/users/${id}`);
     
     const response = await fetch(`${baseUrl}/api/users/${id}`, {
       method: 'GET',
@@ -78,7 +78,7 @@ export const getUserById = async (id, token) => {
     }
 
     const data = await response.json();
-    console.log("User fetched successfully:", data);
+    // console.log("User fetched successfully:", data);
     return { success: true, data };
   } catch (error) {
     console.error("Error fetching user:", error);

@@ -18,7 +18,7 @@ const Analytics = () => {
       try {
         setLoading(true);
         setError(null);
-        console.log("Analytics component - About to call getAnalyticsData with token:", token ? "present" : "missing");
+        // console.log("Analytics component - About to call getAnalyticsData with token:", token ? "present" : "missing");
         
         // First try the main analytics endpoint
         const data = await getAnalyticsData(token);
@@ -26,13 +26,13 @@ const Analytics = () => {
         if (data.error) {
           setError(data.error);
         } else {
-          console.log("📊 Analytics data received:", JSON.stringify(data, null, 2));
+          // console.log("📊 Analytics data received:", JSON.stringify(data, null, 2));
           
           // If generatedPostsCount is 0, try the test endpoint to get the real count
           let generatedPostsCount = data.generatedPostsCount || 0;
           
           if (generatedPostsCount === 0) {
-            console.log("📊 Generated posts count is 0, checking test endpoint...");
+            // console.log("📊 Generated posts count is 0, checking test endpoint...");
             try {
               const testResponse = await fetch("http://localhost:8080/api/analytics/test", {
                 headers: {
@@ -43,18 +43,18 @@ const Analytics = () => {
               
               if (testResponse.ok) {
                 const testData = await testResponse.json();
-                console.log("📊 Test endpoint data:", JSON.stringify(testData, null, 2));
+                // console.log("📊 Test endpoint data:", JSON.stringify(testData, null, 2));
                 
                 // Use the totalGeneratedContentInDB as the generatedPostsCount
                 generatedPostsCount = testData.totalGeneratedContentInDB || 0;
-                console.log("📊 Using test endpoint count:", generatedPostsCount);
+                // console.log("📊 Using test endpoint count:", generatedPostsCount);
               }
             } catch (testErr) {
-              console.log("📊 Test endpoint failed, using original count:", generatedPostsCount);
+              // console.log("📊 Test endpoint failed, using original count:", generatedPostsCount);
             }
           }
           
-          console.log("📊 Setting analytics data...");
+          // console.log("📊 Setting analytics data...");
           
           // Set the data in the same format as the working "Set Test Data" button
           const formattedData = {
@@ -74,7 +74,7 @@ const Analytics = () => {
           
           setAnalyticsData(formattedData);
           setForceUpdate(prev => prev + 1); // Force re-render
-          console.log("📊 Analytics data set successfully with formatting");
+          // console.log("📊 Analytics data set successfully with formatting");
         }
       } catch (err) {
         setError(err.message);
@@ -315,10 +315,10 @@ const Analytics = () => {
 
         {/* LinkedIn Engagement Metrics Grid */}
         {(() => {
-          console.log("🔍 Checking LinkedIn engagement metrics display condition:");
-          console.log("🔍 analyticsData exists:", !!analyticsData);
-          console.log("🔍 linkedinPostsCount:", analyticsData?.linkedinPostsCount);
-          console.log("🔍 linkedinPostsCount > 0:", analyticsData?.linkedinPostsCount > 0);
+          // console.log("🔍 Checking LinkedIn engagement metrics display condition:");
+          // console.log("🔍 analyticsData exists:", !!analyticsData);
+          // console.log("🔍 linkedinPostsCount:", analyticsData?.linkedinPostsCount);
+          // console.log("🔍 linkedinPostsCount > 0:", analyticsData?.linkedinPostsCount > 0);
           console.log("🔍 All LinkedIn metrics:", {
             linkedinTotalLikes: analyticsData?.linkedinTotalLikes,
             linkedinTotalComments: analyticsData?.linkedinTotalComments,

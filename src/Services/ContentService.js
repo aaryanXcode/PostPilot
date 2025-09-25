@@ -4,10 +4,10 @@
       const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
       const scheduledContentUrl = import.meta.env.VITE_SCHEDULED_CONTENT_URL || '/generated-content/scheduled';
       const url = `${baseUrl}${scheduledContentUrl}?page=${page}&size=${size}`;
-      console.log('=== FRONTEND: Fetching scheduled content ===');
-      console.log('URL:', url);
-      console.log('Token:', token ? 'Present' : 'Missing');
-      console.log('Page:', page, 'Size:', size);
+      // console.log('=== FRONTEND: Fetching scheduled content ===');
+      // console.log('URL:', url);
+      // console.log('Token:', token ? 'Present' : 'Missing');
+      // console.log('Page:', page, 'Size:', size);
       
       const response = await fetch(url, {
           method: "GET",
@@ -18,8 +18,8 @@
         }
       );
 
-      console.log('Response status:', response.status);
-      console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+      // console.log('Response status:', response.status);
+      // console.log('Response headers:', Object.fromEntries(response.headers.entries()));
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -28,11 +28,11 @@
       }
 
       const data = await response.json();
-      console.log('=== FRONTEND: Received data ===');
-      console.log('Data:', data);
-      console.log('Content length:', data.content ? data.content.length : 'No content array');
-      console.log('Total elements:', data.totalElements);
-      console.log('Total pages:', data.totalPages);
+      // console.log('=== FRONTEND: Received data ===');
+      // console.log('Data:', data);
+      // console.log('Content length:', data.content ? data.content.length : 'No content array');
+      // console.log('Total elements:', data.totalElements);
+      // console.log('Total pages:', data.totalPages);
       
       return data; // This will be a Page<ScheduledContentDTO>
     } catch (error) {
@@ -48,7 +48,7 @@ export const fetchPostById = async (id, token) => {
    
     const generatedContent = import.meta.env.VITE_GENERATED_CONTENT_URL;
     const url = `${baseUrl}${generatedContent}/post/${id}`;
-    console.log(url, token);
+    // console.log(url, token);
     const response = await fetch(url, {
       method: "GET",
       headers: {
