@@ -2,9 +2,17 @@
 export const ChatService = async (payload, token) => {
 
   try {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const chatUrl = import.meta.env.VITE_CHAT_ASSISTANT_URL;
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    const chatUrl = import.meta.env.VITE_CHAT_ASSISTANT_URL || '/api/chat/assistant';
     const url = `${baseUrl}${chatUrl}`;
+    
+    console.log('=== CHAT SERVICE DEBUG ===');
+    console.log('Base URL:', baseUrl);
+    console.log('Chat URL:', chatUrl);
+    console.log('Full URL:', url);
+    console.log('Payload:', payload);
+    console.log('Token present:', !!token);
+    
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -14,12 +22,17 @@ export const ChatService = async (payload, token) => {
       body: JSON.stringify(payload),
     });
 
+    console.log('Response status:', response.status);
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()));
+    
     if (!response.ok) {
       const errorText = await response.text();
+      console.error('Chat service error:', response.status, errorText);
       throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to get response'}`);
     }
     
     const data = await response.json();
+    console.log('Chat service response:', data);
     return data;
   
   } catch (err) {

@@ -1,8 +1,8 @@
 const AuthService = async ({ username, password }) => {
     console.log({username,password});
   try {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const loginUrl = import.meta.env.VITE_AUTH_LOGIN_URL;
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    const loginUrl = import.meta.env.VITE_AUTH_LOGIN_URL || '/api/auth/login';
     const response = await fetch(`${baseUrl}${loginUrl}`, {
       method: "POST",
       headers: {

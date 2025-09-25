@@ -312,102 +312,112 @@ const handlePostEdit = async (generateContentDTO, token) => {
   ];
 
   return (
-    <div className="flex flex-col w-full h-full p-4 rounded-lg">
-      {messages.length === 0 && (
-        <div className="flex flex-col items-center justify-center flex-1 p-4 sm:p-8">
-          {/* Heading */}
-          <h2 className="text-xl sm:text-2xl font-semibold mb-4 text-center">
-            How can I help you today?
-          </h2>
-
-          {/* Suggestions (only for ADMIN) */}
-          {role === "ADMIN" && (
-            <Suggestions className="w-full max-w-4xl">
-              <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
-                {starterPrompts.map((prompt) => (
-                  <Suggestion
-                    key={prompt}
-                    suggestion={prompt}
-                    onClick={() =>
-                      handleSubmit({
-                        preventDefault: () => {},
-                        target: { value: prompt },
-                      })
+  <div className="flex flex-col h-screen w-full">
+    {/* Scrollable conversation area */}
+    <div className="flex-1 overflow-y-auto p-2 sm:p-4">
+      {messages.length === 0 ? (
+      <div className="flex flex-col w-full p-2 sm:p-4">
+        <Suggestions className="w-full max-w-4xl mx-auto">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 md:gap-2">
+            {starterPrompts.map((prompt) => (
+              <Suggestion
+                key={prompt}
+                suggestion={prompt}
+                onClick={() =>
+                  handleSubmit({
+                    preventDefault: () => {},
+                    target: { value: prompt },
+                  })
+                }
+                className="flex-1 min-w-[240px] max-w-[280px] sm:min-w-[280px] sm:max-w-[320px] md:min-w-[300px] md:max-w-[350px]"
+              />
+            ))}
+          </div>
+        </Suggestions>
+      </div>
+    ) : (
+        <Conversation className="flex flex-col gap-2">
+          <ConversationContent className="flex flex-col gap-2">
+            {messages.map((message) => (
+              <Message
+                key={message.key}
+                className={`flex flex-col gap-2 ${
+                  message.from === "assistant" ? "items-start" : "items-end"
+                }`}
+                from={message.from}
+              >
+                <MessageContent>
+                  <Response>{message.content}</Response>
+                  <GeneratedContentCard
+                    content={message.generatedContent}
+                    isConnected={isConnected}
+                    onPostNow={() => handlePostNow(message.generatedContent)}
+                    onSchedule={(dateTime) =>
+                      handleSchedule({ ...message.generatedContent, dateTime })
                     }
-                    className="flex-1 min-w-[280px] max-w-[320px] sm:min-w-[300px] sm:max-w-[350px]"
+                    onConnect={() =>
+                      handleConnectPlatform(message.generatedContent.platform)
+                    }
+                    onEdit={(updateContent) =>
+                      handlePostEdit(
+                        { ...message.generatedContent, content: updateContent },
+                        token
+                      )
+                    }
                   />
-                ))}
+                </MessageContent>
+
+                {message.from === "assistant" && (
+                  <Actions className="mt-2">
+                    {actions(message).map((action) => (
+                      <Action
+                        key={action.label}
+                        label={action.label}
+                        onClick={action.onClick}
+                      >
+                        <action.icon className="size-4" />
+                      </Action>
+                    ))}
+                  </Actions>
+                )}
+              </Message>
+            ))}
+
+            {status === "loading" && (
+              <div className="flex items-center justify-center p-4 sm:p-6">
+                <div className="flex flex-col items-center space-y-3">
+                  <Loader size={24} />
+                  <p className="text-sm text-gray-600 dark:text-gray-400 animate-pulse">
+                    AI is thinking...
+                  </p>
+                </div>
               </div>
-            </Suggestions>
-          )}
-        </div>
+            )}
+          </ConversationContent>
+        </Conversation>
       )}
-      <Conversation className="flex-1 overflow-y-auto mb-4">
-        <ConversationContent>
-          {messages.map((message) => (
-            <Message
-              key={message.key}
-              className={`flex flex-col gap-2 ${
-                message.from === 'assistant' ? 'items-start' : 'items-end'
-              }`}
-              from={message.from}
-            >
-              <MessageContent>
-                <Response>{message.content}</Response>
-                <GeneratedContentCard
-                  content={message.generatedContent}
-                  isConnected ={isConnected}
-                  onPostNow={()=>handlePostNow(message.generatedContent)}
-                  onSchedule={(dateTime) => {
-                    handleSchedule({ ...message.generatedContent, dateTime })
-                  }}
-                  onConnect={()=>handleConnectPlatform(message.generatedContent.platform)}
-                  onEdit={(updateContent) =>
-                    handlePostEdit(
-                      { ...message.generatedContent, content: updateContent }, 
-                      token // pass the token here
-                    )
-                  }
+    </div>
 
-                />
-              </MessageContent>
-              {message.from === 'assistant' && (
-                <Actions className="mt-2">
-                  {actions(message).map((action) => (
-                    <Action
-                      key={action.label}
-                      label={action.label}
-                      onClick={action.onClick}
-                    >
-                      <action.icon className="size-4" />
-                    </Action>
-                  ))}
-                </Actions>
-              )}
-            </Message>
-          ))}
-          {status === "loading" && (
-            <div className="flex items-center gap-2 p-4">
-              <Loader size={20} />
-              <span className="text-muted-foreground text-sm">Thinking...</span>
-            </div>
-          )}
-        </ConversationContent>
-      </Conversation>
-
+    {/* Fixed input area at bottom */}
+    <div className="flex-shrink-0 p-2 sm:pb-32">
       <PromptInput onSubmit={handleSubmit}>
         <PromptInputTextarea
           onChange={(e) => setText(e.target.value)}
           value={text}
-          placeholder="Type your message..."
+          placeholder="Ask me to create social media content..."
+          className="min-h-[60px] sm:min-h-[80px] text-sm sm:text-base"
         />
         <PromptInputToolbar>
-          <PromptInputTools className="flex flex-nowrap overflow-x-auto gap-2 pb-2 scrollbar-hide">
+          <PromptInputTools className="flex flex-nowrap overflow-x-auto gap-1 sm:gap-2 pb-2 scrollbar-hide">
             <PromptInputButton className="flex-shrink-0">
-              <PaperclipIcon size={16} />
+              <PaperclipIcon size={14} className="sm:w-4 sm:h-4" />
             </PromptInputButton>
-            <PromptInputModelSelect onValueChange={setModel} value={model} className="flex-shrink-0 min-w-[120px]">
-              <PromptInputModelSelectTrigger>
+            <PromptInputModelSelect
+              onValueChange={setModel}
+              value={model}
+              className="flex-shrink-0 min-w-[100px] sm:min-w-[120px]"
+            >
+              <PromptInputModelSelectTrigger className="text-xs sm:text-sm">
                 <PromptInputModelSelectValue />
               </PromptInputModelSelectTrigger>
               <PromptInputModelSelectContent>
@@ -418,23 +428,28 @@ const handlePostEdit = async (generateContentDTO, token) => {
                 ))}
               </PromptInputModelSelectContent>
             </PromptInputModelSelect>
-            <PromptInputPlatformSelect 
-              value={platform} 
-              onValueChange={setPlatform} 
-              className="flex-shrink-0 min-w-[100px]" 
+            <PromptInputPlatformSelect
+              value={platform}
+              onValueChange={setPlatform}
+              className="flex-shrink-0 min-w-[80px] sm:min-w-[100px]"
             />
-            <PromptInputContentTypeSelect 
-              value={contentType} 
+            <PromptInputContentTypeSelect
+              value={contentType}
               onValueChange={setContentType}
-              className="flex-shrink-0 min-w-[100px]"
+              className="flex-shrink-0 min-w-[80px] sm:min-w-[100px]"
             />
           </PromptInputTools>
-          <PromptInputSubmit disabled={!text} status={status} className="flex-shrink-0" />
+          <PromptInputSubmit
+            disabled={!text}
+            status={status}
+            className="flex-shrink-0"
+          />
         </PromptInputToolbar>
-
       </PromptInput>
     </div>
-  );
+  </div>
+);
+
 };
 
 export default Example;

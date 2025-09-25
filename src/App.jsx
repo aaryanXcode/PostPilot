@@ -39,7 +39,7 @@ function AuthenticatedRoutes() {
 
 function App() {
   return (
-    <div className="h-screen w-screen bg-background overflow-hidden">
+    <div className="h-screen w-screen bg-background overflow-y-auto">
       <AuthProvider>
         <ChatMessageContextProvider>
           <NotificationProvider>
