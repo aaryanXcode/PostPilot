@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { ChatHistory, CreateNewSession } from "../Services/ChatService";
-import { Home, Plus, MoreHorizontal, Pencil, Trash } from "lucide-react"; 
+import { Home, Plus, MoreHorizontal, Pencil, Trash, UserCircle, LogOut } from "lucide-react"; 
 import { useAuth } from "@/components/AuthContext";
 import {Link, useParams, useNavigate, Navigate} from "react-router-dom";
 import { useMessages } from "@/components/ChatMessageContextProvider";
@@ -18,7 +18,7 @@ import { ChatMessageHistory, DeleteChatSession, UpdateChatTitle } from "../Servi
 
 export function AppSidebar() {
   const [chatItems, setChatItems] = useState([]);
-  const { token } = useAuth(); 
+  const { token, user, role, logout } = useAuth(); 
   const { sessionIdSidebar } = useParams();
   const navigate = useNavigate();
   const { chatMessage, chatList, setChatList } = useMessages();
@@ -109,6 +109,12 @@ const handleSaveTitle = async (sessionId) => {
     console.error("Failed to update chat title:", err);
   }
 };
+
+const handleLogout = () => {
+  logout();
+  navigate("/login");
+};
+
 
 
 
@@ -236,6 +242,32 @@ const handleSaveTitle = async (sessionId) => {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      
+      {/* User Profile Section at Bottom */}
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+        <div className="flex items-center space-x-3 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-700 dark:to-gray-600 hover:from-blue-100 hover:to-purple-100 dark:hover:from-gray-600 dark:hover:to-gray-500 transition-all duration-300 group">
+          <div className="flex-shrink-0">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-300">
+              <UserCircle className="w-6 h-6 text-white" />
+            </div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+              {user || 'User'}
+            </p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              {role || 'Role'}
+            </p>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="flex-shrink-0 p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200 group"
+            title="Logout"
+          >
+            <LogOut className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
     </Sidebar>
   );
 }

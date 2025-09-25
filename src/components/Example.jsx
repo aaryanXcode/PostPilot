@@ -200,6 +200,14 @@ const Example = () => {
   //Edit post content
   const handlePostNow = async (generatedContent) => {
     try {
+      console.log("=== CHAT PAGE: Post Now Handler ===");
+      console.log("Sending to server for posting:", generatedContent);
+      console.log("Generated Content ID:", generatedContent.id);
+      console.log("Generated Content:", generatedContent.content);
+      console.log("Generated Content Platform:", generatedContent.platform);
+      console.log("Generated Content Title:", generatedContent.title);
+      console.log("Full Generated Content Object:", JSON.stringify(generatedContent, null, 2));
+
       // API call here
       const response = await PostContent(generatedContent, token);
       toast.success("Content updated successfully!");

@@ -1,13 +1,16 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useAuth } from "./AuthContext";
 
 const NotificationContext = createContext();
 
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const { user } = useAuth();
 
-  const userId = "1"; // later from AuthContext
+  // Use actual user ID from auth context, fallback to "1" for development
+  const userId = user?.id?.toString() || "1";
 
   // Load from sessionStorage on mount
   useEffect(() => {
@@ -19,6 +22,9 @@ export const NotificationProvider = ({ children }) => {
 
   // SSE listener
   useEffect(() => {
+    if (!userId) return; // Don't connect if no user ID
+    
+    console.log('🔔 Connecting to notifications for user:', userId);
     const eventSource = new EventSource(
       `http://localhost:8080/api/notifications/stream?userId=${userId}`
     );
@@ -26,11 +32,13 @@ export const NotificationProvider = ({ children }) => {
     eventSource.addEventListener("notification", (e) => {
       try {
         const data = JSON.parse(e.data);
+        console.log('📩 Received notification:', data);
+        
         const notification = {
           id: data.id || Date.now(),
           timestamp: data.timestamp || new Date().toISOString(),
           read: false,
-          message: data.message || "New notification",
+          message: data.message || data.title || "New notification",
           type: data.type || "info",
         };
 
@@ -55,12 +63,23 @@ export const NotificationProvider = ({ children }) => {
       }
     });
 
+    eventSource.addEventListener("connected", (e) => {
+      console.log('🔔 SSE Connected:', e.data);
+    });
+
+    eventSource.onopen = () => {
+      console.log('🔔 SSE Connection opened for user:', userId);
+    };
+
     eventSource.onerror = (err) => {
-      console.error("SSE error:", err);
+      console.error("❌ SSE error for user:", userId, err);
       eventSource.close();
     };
 
-    return () => eventSource.close();
+    return () => {
+      console.log('🔔 Closing SSE connection for user:', userId);
+      eventSource.close();
+    };
   }, [userId]);
 
   // === helpers ===
@@ -102,6 +121,20 @@ export const NotificationProvider = ({ children }) => {
     sessionStorage.removeItem("unreadCount");
   };
 
+  // Test function to send a test notification
+  const sendTestNotification = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/notifications/test?userId=${userId}`);
+      if (response.ok) {
+        console.log('✅ Test notification sent successfully');
+      } else {
+        console.error('❌ Failed to send test notification:', response.status);
+      }
+    } catch (error) {
+      console.error('❌ Error sending test notification:', error);
+    }
+  };
+
   return (
     <NotificationContext.Provider
       value={{
@@ -111,6 +144,8 @@ export const NotificationProvider = ({ children }) => {
         markAllAsRead,
         clearNotification,
         clearAllNotifications,
+        sendTestNotification,
+        userId,
       }}
     >
       {children}

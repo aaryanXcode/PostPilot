@@ -78,10 +78,10 @@ export const updatePostById = async (id, newContent, token) => {
     const response = await fetch(url, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "text/plain",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(newContent), // backend expects raw string
+      body: newContent, // backend expects raw string
     });
 
     if (!response.ok) {

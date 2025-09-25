@@ -42,12 +42,22 @@ export const ChatService = async (payload, token) => {
 };
 
 export const ChatHistory = async (token, userId) => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const historyUrl = import.meta.env.VITE_CHAT_HISTORY_URL;
+    console.log(token);
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    // Force the correct endpoint
+    const historyUrl = '/chat/history';
     let url = `${baseUrl}${historyUrl}`;
     if (userId) {
       url += `?userId=${userId}`;
     }
+    
+    console.log('=== CHAT HISTORY DEBUG ===');
+    console.log('Base URL:', baseUrl);
+    console.log('History URL:', historyUrl);
+    console.log('Full URL:', url);
+    console.log('Token present:', !!token);
+    console.log('Making request to:', url);
+    
     try{
         const response = await fetch(url, {
         method : "GET",
@@ -57,11 +67,17 @@ export const ChatHistory = async (token, userId) => {
         },
       });
 
+      console.log('Chat history response status:', response.status);
+      console.log('Chat history response headers:', Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
-        throw new Error(`Failed to fetch chat history: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Chat history error:', response.status, errorText);
+        throw new Error(`Failed to fetch chat history: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Chat history data:', data);
       return data;
     }
     catch(error){
@@ -73,9 +89,9 @@ export const ChatHistory = async (token, userId) => {
 
 
 export const ChatMessageHistory = async (sessionId, token, page = 0, size = 20) => {
-  const baseUrl = import.meta.env.VITE_API_BASE_URL;
-  const messagesUrl = import.meta.env.VITE_CHAT_MESSAGES_URL.replace('{sessionId}', sessionId);
-  const url = `${baseUrl}${messagesUrl}`;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+  const messagesUrl = import.meta.env.VITE_CHAT_MESSAGES_URL || '/chat/{sessionId}/messages';
+  const url = `${baseUrl}${messagesUrl.replace('{sessionId}', sessionId)}`;
 
   const pageDTO = {
     page,
@@ -105,8 +121,8 @@ export const ChatMessageHistory = async (sessionId, token, page = 0, size = 20) 
 };
 
   export const CreateNewSession = async (token) => {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const createSessionUrl = import.meta.env.VITE_CHAT_CREATE_SESSION_URL;
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    const createSessionUrl = import.meta.env.VITE_CHAT_CREATE_SESSION_URL || '/chat/create/session';
     const url = `${baseUrl}${createSessionUrl}`;
 
     try {
@@ -133,9 +149,9 @@ export const ChatMessageHistory = async (sessionId, token, page = 0, size = 20) 
 
   export async function DeleteChatSession(sessionId, token) {
   try {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const deleteSessionUrl = import.meta.env.VITE_CHAT_DELETE_SESSION_URL.replace('{sessionId}', sessionId);
-    const url = `${baseUrl}${deleteSessionUrl}`;
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    const deleteSessionUrl = import.meta.env.VITE_CHAT_DELETE_SESSION_URL || '/chat/delete/session/{sessionId}';
+    const url = `${baseUrl}${deleteSessionUrl.replace('{sessionId}', sessionId)}`;
     
     const response = await fetch(url, {
         method: "DELETE",
@@ -158,9 +174,9 @@ export const ChatMessageHistory = async (sessionId, token, page = 0, size = 20) 
 
 export async function UpdateChatTitle(sessionId, newTitle, token) {
   try {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL;
-    const updateTitleUrl = import.meta.env.VITE_CHAT_UPDATE_TITLE_URL.replace('{sessionId}', sessionId);
-    const url = `${baseUrl}${updateTitleUrl}?title=${encodeURIComponent(newTitle)}`;
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+    const updateTitleUrl = import.meta.env.VITE_CHAT_UPDATE_TITLE_URL || '/chat/update/title/{sessionId}';
+    const url = `${baseUrl}${updateTitleUrl.replace('{sessionId}', sessionId)}?title=${encodeURIComponent(newTitle)}`;
     
     const response = await fetch(url, {
         method: "PUT",

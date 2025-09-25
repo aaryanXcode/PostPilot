@@ -17,23 +17,47 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea"; 
 import { fetchPostById, updatePostById } from "../../Services/ContentService";
+import { PostSchedule, PostContent } from "../../Services/ContentPostService";
+import { LinkedInAuthService, LinkedInAuthStatusService } from "../../Services/LinkedInAuthService";
 import { useAuth } from "@/components/AuthContext";
 import { toast } from "sonner";
+import { Calendar24 } from "../DateTimePicker";
 
 export const DataTable = ({ items, type }) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [activePost, setActivePost] = useState(null);
   const [editorValue, setEditorValue] = useState("");
-  const { token} = useAuth();
+  const [selectedDateTime, setSelectedDateTime] = useState(null);
+  const [isConnected, setIsConnected] = useState(false);
+  const { token, role} = useAuth();
+
+  // Check LinkedIn connection status on component mount
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const status = await LinkedInAuthStatusService(token);
+        setIsConnected(status.authenticated && status.hasToken);
+      } catch (error) {
+        console.error("Failed to check LinkedIn connection status:", error);
+        setIsConnected(false);
+      }
+    };
+    
+    if (token) {
+      checkAuthStatus();
+    }
+  }, [token]);
   // open dialog and fetch content by id
   const handleEdit = async (postId) => {
     try {
       const data = await fetchPostById(postId, token); // fetch content by row id
       setActivePost(data);
       setEditorValue(data.content || "");
+      // Set the current scheduled date as the initial value
+      setSelectedDateTime(data.scheduledDate ? new Date(data.scheduledDate) : null);
       setOpenDialog(true);
     } catch (err) {
       console.error("Failed to fetch post content:", err);
@@ -44,14 +68,173 @@ export const DataTable = ({ items, type }) => {
     if (!activePost) return;
 
     try {
+      // First, always update the content
       await updatePostById(activePost.id, editorValue, token);
-      // Optionally show a toast here
-      toast.success("Content updated successfully!");
+      
+      // Then, if a new date is selected, reschedule the post
+      if (selectedDateTime) {
+        await reschedulePost(activePost.id, selectedDateTime, token);
+        toast.success("✅ Post content and schedule updated successfully!");
+      } else {
+        toast.success("Content updated successfully!");
+      }
+      
       setOpenDialog(false);
       setActivePost(null);
       setEditorValue("");
+      setSelectedDateTime(null);
+      
+      // Refresh the page to show updated data
+      window.location.reload();
     } catch (err) {
       console.error("Failed to update post:", err);
+      toast.error("❌ Failed to update post");
+    }
+  };
+
+  const handleDateSelect = (dateTime) => {
+    // Just store the selected date temporarily, don't save yet
+    setSelectedDateTime(dateTime);
+  };
+
+  const handleConnectLinkedIn = async () => {
+    try {
+      if (isConnected) {
+        toast.info("Already connected to LinkedIn");
+        return;
+      }
+      
+      const result = await LinkedInAuthService(token);
+      
+      if (result?.authUrl) {
+        window.location.href = result.authUrl;
+      } else {
+        throw new Error("No auth URL received from server");
+      }
+
+      toast.success("Redirecting to LinkedIn...");
+    } catch (error) {
+      console.error("Failed to connect to LinkedIn:", error);
+      toast.error("❌ Failed to connect to LinkedIn");
+    }
+  };
+
+  const handlePostNow = async (post) => {
+    try {
+      if (!isConnected) {
+        toast.info("Please connect to LinkedIn first");
+        await handleConnectLinkedIn();
+        return;
+      }
+
+      // Fetch the full post content first
+      const fullPostData = await fetchPostById(post.id, token);
+      
+      // Create post object for posting with the actual content
+      const postObject = {
+        ...post,
+        content: fullPostData.content || post.title || ""
+      };
+
+      console.log("=== SCHEDULE PAGE: Post Now Handler ===");
+      console.log("Original post from table:", post);
+      console.log("Fetched full post data:", fullPostData);
+      console.log("Sending to server for posting:", postObject);
+      console.log("Post ID:", post.id);
+      console.log("Post Content:", postObject.content);
+      console.log("Post Platform:", postObject.platform);
+      console.log("Post Title:", postObject.title);
+      console.log("Full Post Object:", JSON.stringify(postObject, null, 2));
+
+      const response = await PostContent(postObject, token);
+      toast.success("✅ Post published to LinkedIn successfully!");
+      
+      // Refresh the page to show updated data
+      window.location.reload();
+    } catch (error) {
+      console.error("Failed to post to LinkedIn:", error);
+      toast.error("❌ Failed to post to LinkedIn");
+    }
+  };
+
+  const handleCancelSchedule = async (postId) => {
+    try {
+      console.log("=== SCHEDULE PAGE: Cancel Schedule Handler ===");
+      console.log("Cancelling schedule for post ID:", postId);
+
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+      const url = `${baseUrl}/content/schedule/cancel`;
+      
+      const cancelRequest = {
+        id: postId
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(cancelRequest)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to cancel schedule'}`);
+      }
+
+      const data = await response.text();
+      console.log("Cancel schedule response:", data);
+      
+      toast.success("✅ Post schedule cancelled successfully! Moved to draft.");
+      
+      // Refresh the page to show updated data
+      window.location.reload();
+    } catch (error) {
+      console.error("Failed to cancel schedule:", error);
+      toast.error("❌ Failed to cancel schedule");
+    }
+  };
+
+  const reschedulePost = async (postId, dateTime, token) => {
+    try {
+      const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+      const url = `${baseUrl}/content/schedule`;
+      
+      // Convert dateTime to ISO string, handling both Date objects and strings
+      let dateTimeString;
+      if (dateTime instanceof Date) {
+        dateTimeString = dateTime.toISOString();
+      } else if (typeof dateTime === 'string') {
+        dateTimeString = dateTime;
+      } else {
+        throw new Error('Invalid dateTime format');
+      }
+      
+      const scheduleRequest = {
+        id: postId,
+        dateTime: dateTimeString
+      };
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(scheduleRequest)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`HTTP ${response.status}: ${errorText || 'Failed to reschedule post'}`);
+      }
+
+      const data = await response.text();
+      return data;
+    } catch (error) {
+      console.error("Error rescheduling post:", error);
+      throw error;
     }
   };
   return (
@@ -138,21 +321,35 @@ export const DataTable = ({ items, type }) => {
             </TableCell>
             <TableCell className="text-right">
               <div className="flex space-x-2 justify-end">
-                {type === "draft" && (
-                  <Button size="sm" variant="outline">
+                {type === "draft" && role === "SUPER_ADMIN" && (
+                  <Button 
+                    size="sm" 
+                    variant="outline"
+                    onClick={() => handlePostNow(post)}
+                  >
                     Post Now
                   </Button>
                 )}
 
                 {type === "scheduled" && (
                   <>
-                    <Button size="sm" variant="outline">
-                      Post Now
-                    </Button>
-                    <Button size="sm" variant="destructive">
+                    {role === "SUPER_ADMIN" && (
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => handlePostNow(post)}
+                      >
+                        Post Now
+                      </Button>
+                    )}
+                    <Button 
+                      size="sm" 
+                      variant="destructive"
+                      onClick={() => handleCancelSchedule(post.id)}
+                    >
                       Cancel
                     </Button>
-                     <Button size="sm" variant="destructive" onClick={() => handleEdit(post.id)}>Edit</Button>
+                     <Button size="sm" className="bg-orange-500 text-white hover:bg-orange-600 border-0" onClick={() => handleEdit(post.id)}>Edit</Button>
                   </>
                 )}
               
@@ -196,6 +393,9 @@ export const DataTable = ({ items, type }) => {
                   <div className="text-sm text-gray-600 dark:text-gray-300">
                     <p>Character count: <span className="font-medium">{editorValue.length}</span></p>
                     <p>Word count: <span className="font-medium">{editorValue.split(/\s+/).filter(word => word.length > 0).length}</span></p>
+                    {selectedDateTime && (
+                      <p>New schedule: <span className="font-medium text-orange-600">{selectedDateTime.toLocaleString()}</span></p>
+                    )}
                   </div>
                 </div>
               )}
@@ -244,6 +444,12 @@ export const DataTable = ({ items, type }) => {
                 )}
               </div>
               <div className="flex gap-3">
+
+                 <Calendar24
+                  onConfirm={(dateTime) => {
+                    handleDateSelect(dateTime);
+                  }}
+                />
                 <Button 
                   variant="outline" 
                   onClick={() => setOpenDialog(false)}
