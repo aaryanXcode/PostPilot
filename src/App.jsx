@@ -11,6 +11,8 @@ import Dashboard from "./components/Dashboard";
 import Scheduled from "./components/Scheduled";
 import Analytics from "./components/Analytics";
 import Gallery from "./components/Gallery";
+import UserManagement from "./components/UserManagement";
+import News from "./components/News";
 
 // Component to handle authenticated routes
 function AuthenticatedRoutes() {
@@ -29,6 +31,8 @@ function AuthenticatedRoutes() {
         <Route path="/scheduled" element={<Scheduled />} />
         <Route path="/analytics" element={<Analytics />} />
         <Route path="/gallery" element={<Gallery />} />
+        <Route path="/users" element={<UserManagement />} />
+        <Route path="/news" element={<News />} />
         <Route path="/chat" element={<Example />} />
         <Route path="/chat/:sessionIdSidebar" element={<Example />} />
         

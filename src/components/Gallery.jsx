@@ -62,6 +62,9 @@ const Gallery = () => {
     isBatch: false,
     count: 0
   });
+  const [uploadingImages, setUploadingImages] = useState(new Set());
+  const [uploadProgress, setUploadProgress] = useState({});
+  const [isDragOver, setIsDragOver] = useState(false);
 
   // Convert uploaded:// URLs to proper server URLs
   const convertUploadedUrl = (url) => {
@@ -401,6 +404,152 @@ const Gallery = () => {
     }
   };
 
+  const handleFileUpload = async (event) => {
+    const files = Array.from(event.target.files);
+    if (files.length === 0) return;
+
+    // Reset file input
+    event.target.value = '';
+
+    for (const file of files) {
+      const fileId = `${file.name}-${Date.now()}`;
+      
+      try {
+        // Add to uploading set
+        setUploadingImages(prev => new Set([...prev, fileId]));
+        setUploadProgress(prev => ({ ...prev, [fileId]: 0 }));
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          throw new Error('Please select only image files');
+        }
+
+        // Validate file size (10MB limit)
+        const maxSize = 10 * 1024 * 1024; // 10MB
+        if (file.size > maxSize) {
+          throw new Error(`File ${file.name} is too large. Maximum size is 10MB`);
+        }
+
+        // Prepare metadata
+        const metadata = {
+          name: file.name,
+          type: 'uploaded',
+          description: `Uploaded image: ${file.name}`,
+          tags: ['uploaded', 'gallery']
+        };
+
+        // Simulate upload progress
+        const progressInterval = setInterval(() => {
+          setUploadProgress(prev => ({
+            ...prev,
+            [fileId]: Math.min(prev[fileId] + Math.random() * 20, 90)
+          }));
+        }, 200);
+
+        // Upload the file
+        const result = await uploadImage(token, file, metadata);
+        
+        // Clear progress interval
+        clearInterval(progressInterval);
+        setUploadProgress(prev => ({ ...prev, [fileId]: 100 }));
+
+        if (result.error) {
+          throw new Error(result.error);
+        }
+
+        // Add the uploaded image to the gallery
+        const newImage = {
+          id: result.id || Date.now(),
+          fileName: result.fileName || file.name,
+          imageUrl: result.imageUrl || result.url,
+          imagePrompt: result.imagePrompt || 'User uploaded image',
+          altText: result.altText || file.name,
+          fileSize: result.fileSize || formatFileSize(file.size),
+          generatedAt: result.generatedAt || new Date().toISOString(),
+          name: result.fileName || file.name,
+          url: result.imageUrl || result.url,
+          type: 'uploaded',
+          createdAt: result.generatedAt || new Date().toISOString(),
+          tags: ['uploaded', 'gallery'],
+          size: result.fileSize || formatFileSize(file.size),
+          dimensions: 'Unknown'
+        };
+
+        setImages(prev => [newImage, ...prev]);
+        
+        // Update pagination
+        setPagination(prev => ({
+          ...prev,
+          totalElements: prev.totalElements + 1
+        }));
+
+        console.log('Image uploaded successfully:', newImage);
+        
+        // Remove from uploading set after a delay
+        setTimeout(() => {
+          setUploadingImages(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(fileId);
+            return newSet;
+          });
+          setUploadProgress(prev => {
+            const newProgress = { ...prev };
+            delete newProgress[fileId];
+            return newProgress;
+          });
+        }, 1000);
+
+      } catch (error) {
+        console.error('Error uploading image:', error);
+        alert(`Failed to upload ${file.name}: ${error.message}`);
+        
+        // Remove from uploading set
+        setUploadingImages(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(fileId);
+          return newSet;
+        });
+        setUploadProgress(prev => {
+          const newProgress = { ...prev };
+          delete newProgress[fileId];
+          return newProgress;
+        });
+      }
+    }
+  };
+
+  const formatFileSize = (bytes) => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = Array.from(e.dataTransfer.files);
+    if (files.length > 0) {
+      // Create a synthetic event for the upload handler
+      const syntheticEvent = {
+        target: { files: files, value: '' }
+      };
+      handleFileUpload(syntheticEvent);
+    }
+  };
+
   const formatDate = (dateString) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',
@@ -418,7 +567,31 @@ const Gallery = () => {
   }
 
   return (
-    <div className="min-h-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-y-auto">
+    <div 
+      className={`min-h-full bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-y-auto ${
+        isDragOver ? 'ring-2 ring-blue-500 ring-opacity-50' : ''
+      }`}
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {/* Drag and Drop Overlay */}
+      {isDragOver && (
+        <div className="absolute inset-0 bg-blue-500 bg-opacity-20 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-xl border-2 border-dashed border-blue-500">
+            <div className="text-center">
+              <Upload className="w-16 h-16 text-blue-500 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                Drop images here
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300">
+                Release to upload your images to the gallery
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 right-10 animate-pulse delay-200">
@@ -441,10 +614,25 @@ const Gallery = () => {
                 Manage and view all your generated and uploaded images
               </p>
             </div>
-            <Button className="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700">
-              <Upload className="w-4 h-4 mr-2" />
-              Upload Images
-            </Button>
+            <div className="relative">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFileUpload}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                id="file-upload"
+              />
+              <Button 
+                className="bg-gradient-to-r from-indigo-600 to-cyan-600 hover:from-indigo-700 hover:to-cyan-700"
+                asChild
+              >
+                <label htmlFor="file-upload" className="cursor-pointer">
+                  <Upload className="w-4 h-4 mr-2" />
+                  Upload Images
+                </label>
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -527,6 +715,30 @@ const Gallery = () => {
                 </p>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Upload Progress Indicators */}
+        {uploadingImages.size > 0 && (
+          <div className="mb-6 space-y-2">
+            {Array.from(uploadingImages).map((fileId) => (
+              <div key={fileId} className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+                    Uploading {fileId.split('-')[0]}...
+                  </span>
+                  <span className="text-sm text-blue-600 dark:text-blue-400">
+                    {Math.round(uploadProgress[fileId] || 0)}%
+                  </span>
+                </div>
+                <div className="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress[fileId] || 0}%` }}
+                  ></div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
 

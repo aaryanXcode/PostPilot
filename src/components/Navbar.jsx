@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNotifications } from "./NotificationProvider"
 import { useAuth } from "./AuthContext";
-import { Bell, Calendar, BarChart3, Layout, User, Settings, MessageSquare, UserPlus, Image } from "lucide-react";
+import { Bell, Calendar, BarChart3, Layout, User, Settings, MessageSquare, UserPlus, Image, Users, Newspaper } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -153,6 +153,50 @@ export const Navbar = () => {
                 </Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
+            
+            {/* News */}
+            <NavigationMenuItem>
+              <NavigationMenuLink
+                asChild
+                className={cn(
+                  "group inline-flex h-8 sm:h-9 w-max items-center justify-center rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-300 hover:scale-105 focus:outline-none disabled:pointer-events-none disabled:opacity-50",
+                  activeItem === "news" 
+                    ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg" 
+                    : "bg-white/60 dark:bg-gray-700/60 text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-emerald-500 hover:to-teal-500 hover:text-white shadow-md hover:shadow-lg"
+                )}
+                onClick={() => setActiveItem("news")}
+              >
+                <Link to="/news" className="flex items-center">
+                  <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-lg flex items-center justify-center mr-2">
+                    <Newspaper className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+                  </div>
+                  <span className="hidden xs:inline font-semibold">News</span>
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            
+            {/* Users Management - Only visible to Super Admin */}
+            {isSuperAdmin && (
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  asChild
+                  className={cn(
+                    "group inline-flex h-8 sm:h-9 w-max items-center justify-center rounded-xl px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium transition-all duration-300 hover:scale-105 focus:outline-none disabled:pointer-events-none disabled:opacity-50",
+                    activeItem === "users" 
+                      ? "bg-gradient-to-r from-red-600 to-pink-600 text-white shadow-lg" 
+                      : "bg-white/60 dark:bg-gray-700/60 text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-red-500 hover:to-pink-500 hover:text-white shadow-md hover:shadow-lg"
+                  )}
+                  onClick={() => setActiveItem("users")}
+                >
+                  <Link to="/users" className="flex items-center">
+                    <div className="w-5 h-5 sm:w-6 sm:h-6 bg-gradient-to-r from-red-500 to-pink-500 rounded-lg flex items-center justify-center mr-2">
+                      <Users className="h-3 w-3 sm:h-4 sm:w-4 text-white" />
+                    </div>
+                    <span className="hidden xs:inline font-semibold">Users</span>
+                  </Link>
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            )}
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -160,7 +204,7 @@ export const Navbar = () => {
         {/* Right side actions */}
         <div className="flex items-center space-x-2">
           {/* Create User Button - Only visible to Super Admin */}
-          {isSuperAdmin && (
+          {/* {isSuperAdmin && (
             <Button
               variant="ghost"
               size="sm"
@@ -170,7 +214,7 @@ export const Navbar = () => {
               <UserPlus className="h-4 w-4" />
               <span className="hidden sm:inline text-sm font-medium">Create User</span>
             </Button>
-          )}
+          )} */}
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
